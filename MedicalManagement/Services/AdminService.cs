@@ -125,14 +125,37 @@ namespace MedicalManagement.Services
             return true;
         }
 
-        public async Task<List<object>> GetUsersByRoleAsync(string role)
+        public async Task<IEnumerable<UserForListDTO>> GetUsersByRoleAsync(string role)
         {
-            var query = _context.UserAccounts
-                .Where(u => u.Role == role && u.IsActive);
-
-            return await query.ToListAsync<object>();
+            if (role == "Parent")
+            {
+                var query = from user in _context.UserAccounts
+                            join parent in _context.Parents on user.ReferenceId equals parent.ParentId
+                            where user.Role == "Parent"
+                            select new UserForListDTO
+                            {
+                                UserId = user.UserId,
+                                Username = user.Username,
+                                Role = user.Role,
+                                IsActive = user.IsActive,
+                                PhoneNumber = parent.Phone
+                            };
+                return await query.ToListAsync();
+            }
+            else
+            {
+                return await _context.UserAccounts
+                    .Where(u => u.Role == role)
+                    .Select(u => new UserForListDTO
+                    {
+                        UserId = u.UserId,
+                        Username = u.Username,
+                        Role = u.Role,
+                        IsActive = u.IsActive,
+                        PhoneNumber = null
+                    }).ToListAsync();
+            }
         }
-
         public async Task<bool> ResetPasswordAsync(ResetUserPasswordDTO dto)
         {
             var user = await _context.UserAccounts.FindAsync(dto.UserId);
@@ -170,11 +193,42 @@ namespace MedicalManagement.Services
             return true;
         }
 
-        public async Task<List<object>> SearchUsersAsync(string query)
+        public async Task<IEnumerable<UserForListDTO>> SearchUsersAsync(string query, string role)
         {
-            return await _context.UserAccounts
-                .Where(u => u.Username.Contains(query))
-                .ToListAsync<object>();
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await GetUsersByRoleAsync(role);
+            }
+
+            if (role == "Parent")
+            {
+                var parentQuery = from user in _context.UserAccounts
+                                  join parent in _context.Parents on user.ReferenceId equals parent.ParentId
+                                  where user.Role == "Parent" && (user.Username.Contains(query) || parent.Phone.Contains(query))
+                                  select new UserForListDTO
+                                  {
+                                      UserId = user.UserId,
+                                      Username = user.Username,
+                                      Role = user.Role,
+                                      IsActive = user.IsActive,
+                                      PhoneNumber = parent.Phone
+                                  };
+                return await parentQuery.ToListAsync();
+            }
+            else
+            {
+                // Các vai trò khác chỉ tìm theo username
+                return await _context.UserAccounts
+                    .Where(u => u.Role == role && u.Username.Contains(query))
+                    .Select(u => new UserForListDTO
+                    {
+                        UserId = u.UserId,
+                        Username = u.Username,
+                        Role = u.Role,
+                        IsActive = u.IsActive,
+                        PhoneNumber = null
+                    }).ToListAsync();
+            }
         }
         public async Task<List<string>> ImportUsersFromExcelWithClosedXmlAsync(IFormFile file, int createdByAdminId)
         {
@@ -303,7 +357,7 @@ namespace MedicalManagement.Services
 
                     _context.UserAccounts.Add(userAccount);
                     await _context.SaveChangesAsync();
-
+                        
                     result.Add($"Dòng {row}: ✅ Thành công.");
                 }
                 catch (DbUpdateException dbEx)

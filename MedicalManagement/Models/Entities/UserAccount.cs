@@ -38,5 +38,6 @@ namespace MedicalManagement.Models.Entities
 
         [Column("is_first_login")]
         public bool IsFirstLogin { get; set; } = true; // ✅ THÊM VÀO ĐÂY
+
     }
 }
