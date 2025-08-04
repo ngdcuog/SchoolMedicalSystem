@@ -362,10 +362,13 @@ const AdminAccounts = () => {
                     <th className="py-3 px-4 text-left font-semibold">ID</th>
                     <th className="py-3 px-4 text-left font-semibold">Username</th>
                     <th className="py-3 px-4 text-left font-semibold">Họ và tên</th>
+                    {roleFilter === 'Student' && (
+                        <th className="py-3 px-4 text-left font-semibold">Lớp</th>
+                    )}
                     <th className="py-3 px-4 text-left font-semibold">Vai trò</th>
                     <th className="py-3 px-4 text-left font-semibold">Trạng thái</th>
                     {roleFilter === 'Parent' && (
-                    <th className="py-3 px-4 text-left font-semibold">Số điện thoại</th>
+                        <th className="py-3 px-4 text-left font-semibold">Số điện thoại</th>
                     )}
                     <th className="py-3 px-4 text-left font-semibold">Thao tác</th>
                   </tr>
@@ -376,10 +379,13 @@ const AdminAccounts = () => {
                       <td className="py-3 px-4 font-medium text-gray-900">{u.userId}</td>
                       <td className="py-3 px-4 text-gray-700">{u.username}</td>
                       <td className="py-3 px-4 font-medium text-gray-800">{u.name || u.username}</td>
+                      {roleFilter === 'Student' && (
+                        <td className="py-3 px-4 text-gray-700">{u.class || "Chưa có"}</td>
+                      )}
                       <td className="py-3 px-4"><span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">{u.role}</span></td>
                       <td className="py-3 px-4"><span className={`text-xs font-semibold px-3 py-1 rounded-full ${u.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{u.isActive ? "Hoạt động" : "Vô hiệu hóa"}</span></td>
                       {roleFilter === 'Parent' && (
-                      <td className="py-3 px-4 text-gray-700">{u.phoneNumber || "Chưa có"}</td>
+                        <td className="py-3 px-4 text-gray-700">{u.phoneNumber || "Chưa có"}</td>
                       )}
                       <td className="py-3 px-4">
                         <div className="flex gap-2">

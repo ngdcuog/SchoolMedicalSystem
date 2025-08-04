@@ -153,7 +153,8 @@ namespace MedicalManagement.Services
                                       Username = user.Username,
                                       Name = student.Name,
                                       Role = user.Role,
-                                      IsActive = user.IsActive
+                                      IsActive = user.IsActive,
+                                      Class = student.Class
                                   }).ToListAsync();
 
                 case "Nurse":
@@ -278,7 +279,8 @@ namespace MedicalManagement.Services
                                            Username = user.Username,
                                            Name = student.Name,
                                            Role = user.Role,
-                                           IsActive = user.IsActive
+                                           IsActive = user.IsActive,
+                                           Class = student.Class
                                        };
                     return await studentQuery.ToListAsync();
 
